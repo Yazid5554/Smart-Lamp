@@ -6,66 +6,39 @@
 <title>Flora — Lamp Controller</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     font-family: system-ui, -apple-system, sans-serif;
-    background: #0a0a0f;
-    color: #e8e8f0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 32px 20px 120px;
+    background: #0a0a0f; color: #e8e8f0;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 32px 20px 120px;
   }
-
-  /* Header */
   .header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 32px;
-    align-self: flex-start;
-    width: 100%;
-    max-width: 420px;
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 32px; align-self: flex-start;
+    width: 100%; max-width: 420px;
   }
   .flora-avatar {
-    width: 40px; height: 40px;
-    border-radius: 50%;
+    width: 40px; height: 40px; border-radius: 50%;
     background: linear-gradient(135deg, #7c5aff, #a78bfa);
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
-    position: relative;
+    font-size: 18px; flex-shrink: 0; position: relative;
   }
   .flora-avatar .dot {
-    position: absolute;
-    bottom: 2px; right: 2px;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: #3a3a52;
-    border: 2px solid #0a0a0f;
-    transition: background 0.3s;
+    position: absolute; bottom: 2px; right: 2px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #3a3a52; border: 2px solid #0a0a0f; transition: background 0.3s;
   }
   .flora-avatar .dot.active { background: #60e090; }
   .flora-avatar .dot.thinking { background: #ffe060; animation: blink 0.6s ease-in-out infinite alternate; }
   @keyframes blink { from { opacity: 0.3; } to { opacity: 1; } }
-
   .header-info { flex: 1; }
   .header-name { font-size: 16px; font-weight: 600; color: #e8e8f0; }
   .header-status { font-size: 12px; color: #5a5a78; margin-top: 1px; transition: color 0.3s; }
   .header-status.on { color: #60e090; }
-
-  .ip-row {
-    display: flex; gap: 8px; align-items: center;
-  }
+  .ip-row { display: flex; gap: 8px; align-items: center; }
   .ip-row input {
-    background: #14141e;
-    border: 1px solid #2a2a3e;
-    border-radius: 8px;
-    color: #9090b8;
-    font-size: 12px;
-    padding: 6px 10px;
-    width: 140px;
-    outline: none;
+    background: #14141e; border: 1px solid #2a2a3e; border-radius: 8px;
+    color: #9090b8; font-size: 12px; padding: 6px 10px; width: 140px; outline: none;
   }
   .ip-row input:focus { border-color: #5a5aff; color: #e8e8f0; }
   .ip-row button {
@@ -73,55 +46,23 @@
     color: #5a5a78; font-size: 12px; padding: 6px 12px; cursor: pointer;
   }
   .ip-row button:hover { color: #e8e8f0; }
-
-  /* Chat area */
-  .chat-area {
-    width: 100%; max-width: 420px;
-    flex: 1;
-    display: flex; flex-direction: column;
-    gap: 12px;
-    margin-bottom: 16px;
-    min-height: 300px;
-  }
-
-  .bubble {
-    max-width: 80%;
-    padding: 10px 14px;
-    border-radius: 16px;
-    font-size: 14px;
-    line-height: 1.5;
-    animation: popIn 0.2s ease;
-  }
+  .chat-area { display: none; }
+  .bubble { display: none; }
   @keyframes popIn {
     from { opacity: 0; transform: scale(0.92) translateY(6px); }
     to   { opacity: 1; transform: scale(1) translateY(0); }
   }
-
   .bubble.flora {
-    background: #1a1428;
-    border: 1px solid #2a1e4a;
-    color: #d0c0f8;
-    border-radius: 4px 16px 16px 16px;
-    align-self: flex-start;
+    background: #1a1428; border: 1px solid #2a1e4a; color: #d0c0f8;
+    border-radius: 4px 16px 16px 16px; align-self: flex-start;
   }
   .bubble.user {
-    background: #1e2a1e;
-    border: 1px solid #1e3a1e;
-    color: #a0d8a0;
-    border-radius: 16px 16px 4px 16px;
-    align-self: flex-end;
+    background: #1e2a1e; border: 1px solid #1e3a1e; color: #a0d8a0;
+    border-radius: 16px 16px 4px 16px; align-self: flex-end;
   }
-  .bubble.action {
-    background: none; border: none;
-    color: #3a3a52; font-size: 12px; text-align: center;
-    align-self: center; padding: 4px 0;
-  }
-
-  /* Bulb */
   .bulb-section {
     display: flex; flex-direction: column; align-items: center;
-    margin: 8px 0;
-    align-self: center;
+    margin: 8px 0; align-self: center;
   }
   .bulb-wrapper {
     position: relative; width: 90px; height: 90px;
@@ -137,18 +78,11 @@
     opacity: 0; transition: opacity 0.4s; pointer-events: none;
   }
   .bulb-wrapper.on .bulb-glow { opacity: 1; }
-
-  /* Bottom controls */
   .bottom-bar {
     position: fixed; bottom: 0; left: 0; right: 0;
-    background: #0d0d15;
-    border-top: 1px solid #1a1a2a;
+    background: #0d0d15; border-top: 1px solid #1a1a2a;
     padding: 16px 20px 24px;
     display: flex; flex-direction: column; align-items: center; gap: 12px;
-  }
-
-  .btn-row {
-    display: flex; gap: 10px;
   }
   .btn {
     padding: 10px 28px; border-radius: 100px;
@@ -159,10 +93,6 @@
   .btn-toggle { background: #1e1e2e; color: #9090b8; border: 1px solid #2a2a3e; min-width: 140px; }
   .btn-toggle:hover { background: #252535; }
   .btn-toggle.on { background: #ffe060; color: #1a1400; border-color: #ffe060; }
-
-  .voice-row {
-    display: flex; align-items: center; gap: 10px;
-  }
   .voice-btn {
     display: flex; align-items: center; gap: 8px;
     padding: 10px 20px; border-radius: 100px;
@@ -171,24 +101,38 @@
     transition: all 0.2s; outline: none;
   }
   .voice-btn:hover { background: #1e1e2e; color: #e8e8f0; }
-  .voice-btn.always-on {
-    border-color: #6040ff; color: #a080ff; background: #12102a;
-  }
+  .voice-btn.always-on { border-color: #6040ff; color: #a080ff; background: #12102a; }
   .voice-btn.listening {
     border-color: #ff4060; color: #ff4060; background: #1a0a0e;
     animation: pulse-border 1s ease-in-out infinite;
   }
-  .voice-btn.waiting {
-    border-color: #ffe060; color: #ffe060; background: #1a1400;
-  }
+  .voice-btn.waiting { border-color: #ffe060; color: #ffe060; background: #1a1400; }
   @keyframes pulse-border {
     0%, 100% { border-color: #ff4060; }
     50% { border-color: #ff8090; }
   }
-
   .voice-hint { font-size: 11px; color: #3a3a52; text-align: center; }
 
-  /* Toast */
+  /* Spectrum */
+  .spectrum {
+    display: flex; align-items: flex-end; justify-content: center;
+    gap: 3px; height: 32px; width: 80px;
+    margin-top: 10px;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .spectrum.active { opacity: 1; }
+  .spectrum .bar {
+    width: 4px; border-radius: 2px;
+    background: linear-gradient(to top, #7c5aff, #a78bfa);
+    animation: none;
+    height: 3px;
+    transition: height 0.1s;
+  }
+  .spectrum.active .bar { animation: specBar var(--dur) ease-in-out infinite alternate; }
+  @keyframes specBar {
+    from { height: 3px; }
+    to   { height: var(--h); }
+  }
   .toast {
     position: fixed; bottom: 110px; left: 50%;
     transform: translateX(-50%) translateY(20px);
@@ -203,6 +147,9 @@
 </style>
 </head>
 <body>
+
+<!-- Audio element untuk suara "yes bos" dari file mp3 lo -->
+<audio id="yesbos-audio" src="yes-bos.mp3" preload="auto"></audio>
 
 <div class="header">
   <div class="flora-avatar">
@@ -220,8 +167,7 @@
 </div>
 
 <div class="chat-area" id="chat-area">
-  <div class="bubble flora">Halo bos! Saya Flora. Bilang <strong>"hi flora"</strong> atau langsung <strong>"on"</strong> / <strong>"off"</strong> untuk kontrol lampu 💡</div>
-
+  <div class="bubble flora">Halo bos! Bilang <strong>"hi flora"</strong> atau langsung <strong>"on"</strong> / <strong>"off"</strong> 💡</div>
   <div class="bulb-section">
     <div class="bulb-wrapper" id="bulb" onclick="toggleLamp()">
       <div class="bulb-glow"></div>
@@ -229,31 +175,36 @@
         <rect x="28" y="74" width="24" height="5" rx="2" fill="#2a2a3e"/>
         <rect x="30" y="79" width="20" height="4" rx="1.5" fill="#242434"/>
         <rect x="31" y="83" width="18" height="4" rx="1.5" fill="#1e1e2e"/>
-        <path d="M20 40 Q20 18 40 16 Q60 18 60 40 Q60 56 54 66 Q50 72 40 74 Q30 72 26 66 Q20 56 20 40Z"
-              fill="#1c1c2c" id="bulb-glass"/>
-        <path d="M33 55 L33 44 Q35 40 37 44 Q38 47 40 44 Q42 40 43 44 L43 55"
-              stroke="#3a3a52" stroke-width="1.5" fill="none" stroke-linecap="round" id="filament"/>
+        <path d="M20 40 Q20 18 40 16 Q60 18 60 40 Q60 56 54 66 Q50 72 40 74 Q30 72 26 66 Q20 56 20 40Z" fill="#1c1c2c" id="bulb-glass"/>
+        <path d="M33 55 L33 44 Q35 40 37 44 Q38 47 40 44 Q42 40 43 44 L43 55" stroke="#3a3a52" stroke-width="1.5" fill="none" stroke-linecap="round" id="filament"/>
         <path d="M27 32 Q29 24 35 22" stroke="#2a2a3e" stroke-width="1.5" fill="none" stroke-linecap="round" id="shine"/>
       </svg>
     </div>
   </div>
+  <div class="spectrum" id="spectrum">
+    <div class="bar" style="--dur:0.4s;--h:28px"></div>
+    <div class="bar" style="--dur:0.6s;--h:20px"></div>
+    <div class="bar" style="--dur:0.3s;--h:32px"></div>
+    <div class="bar" style="--dur:0.5s;--h:16px"></div>
+    <div class="bar" style="--dur:0.45s;--h:26px"></div>
+    <div class="bar" style="--dur:0.35s;--h:22px"></div>
+    <div class="bar" style="--dur:0.55s;--h:30px"></div>
+    <div class="bar" style="--dur:0.42s;--h:18px"></div>
+    <div class="bar" style="--dur:0.38s;--h:24px"></div>
+  </div>
 </div>
 
 <div class="bottom-bar">
-  <div class="btn-row">
-    <button class="btn btn-toggle" id="toggle-btn" onclick="toggleLamp()">Nyalakan</button>
-  </div>
-  <div class="voice-row">
-    <button class="voice-btn" id="voice-btn" onclick="toggleAlwaysOn()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <rect x="9" y="3" width="6" height="11" rx="3"/>
-        <path d="M5 11a7 7 0 0 0 14 0"/>
-        <line x1="12" y1="18" x2="12" y2="22"/>
-        <line x1="9" y1="22" x2="15" y2="22"/>
-      </svg>
-      <span id="voice-label">Aktifkan Flora</span>
-    </button>
-  </div>
+  <button class="btn btn-toggle" id="toggle-btn" onclick="toggleLamp()">Nyalakan</button>
+  <button class="voice-btn" id="voice-btn" onclick="toggleAlwaysOn()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <rect x="9" y="3" width="6" height="11" rx="3"/>
+      <path d="M5 11a7 7 0 0 0 14 0"/>
+      <line x1="12" y1="18" x2="12" y2="22"/>
+      <line x1="9" y1="22" x2="15" y2="22"/>
+    </svg>
+    <span id="voice-label">Aktifkan Flora</span>
+  </button>
   <div class="voice-hint" id="voice-hint">Tekan untuk mulai mendengarkan</div>
 </div>
 
@@ -262,19 +213,19 @@
 <script>
   let lampOn = false;
   let alwaysListening = false;
-  let waitingForCommand = false; // setelah "hi flora" terpanggil
+  let waitingForCommand = false;
   let recognition = null;
-  let synth = window.speechSynthesis;
 
   const espIpInput = document.getElementById('esp-ip');
-  const bulbEl = document.getElementById('bulb');
-  const chatArea = document.getElementById('chat-area');
-  const voiceBtn = document.getElementById('voice-btn');
+  const bulbEl     = document.getElementById('bulb');
+  const chatArea   = document.getElementById('chat-area');
+  const voiceBtn   = document.getElementById('voice-btn');
   const voiceLabel = document.getElementById('voice-label');
-  const voiceHint = document.getElementById('voice-hint');
-  const floraDot = document.getElementById('flora-dot');
+  const voiceHint  = document.getElementById('voice-hint');
+  const floraDot   = document.getElementById('flora-dot');
   const headerStatus = document.getElementById('header-status');
-  const toast = document.getElementById('toast');
+  const toast      = document.getElementById('toast');
+  const yesBosAudio = document.getElementById('yesbos-audio');
 
   // ── IP ──
   function getIP() { return espIpInput.value.trim() || '192.168.1.100'; }
@@ -285,47 +236,24 @@
   const savedIP = localStorage.getItem('esp_ip');
   if (savedIP) espIpInput.value = savedIP;
 
-  // ── Chat bubbles ──
-  function addBubble(text, type) {
-    const d = document.createElement('div');
-    d.className = 'bubble ' + type;
-    d.innerHTML = text;
-    chatArea.appendChild(d);
-    chatArea.scrollTop = chatArea.scrollHeight;
-  }
+  // ── Chat bubbles (disabled) ──
+  function addBubble(text, type) { /* bubble dihilangkan */ }
 
-  // ── TTS JARVIS-style ──
-  let chosenVoice = null;
+  // ── Play "yes bos" mp3 ──
+  const spectrum = document.getElementById('spectrum');
 
-  function initVoice() {
-    const voices = synth.getVoices();
-    const priority = [
-      v => v.name === 'Google UK English Male',
-      v => v.name === 'Google UK English Male' ,
-      v => v.name.includes('David') && v.lang.startsWith('en'),
-      v => v.lang === 'en-GB' && !v.name.toLowerCase().includes('female') && !v.name.toLowerCase().includes('zira'),
-      v => v.lang.startsWith('en') && !v.name.toLowerCase().includes('female') && !v.name.toLowerCase().includes('zira'),
-      v => v.lang.startsWith('en'),
-    ];
-    for (const test of priority) {
-      const found = voices.find(test);
-      if (found) { chosenVoice = found; break; }
-    }
-  }
-  synth.onvoiceschanged = initVoice;
-  initVoice();
-
-  function floraSpeak(text) {
-    if (!synth) return;
-    synth.cancel();
-    if (!chosenVoice) initVoice();
-    const u = new SpeechSynthesisUtterance(text);
-    u.voice = chosenVoice || null;
-    u.lang = chosenVoice ? chosenVoice.lang : 'en-GB';
-    u.rate = 0.9;   // lebih lambat, berwibawa
-    u.pitch = 0.75; // dalam & rendah kayak JARVIS
-    u.volume = 1;
-    synth.speak(u);
+  function playYesBos() {
+    yesBosAudio.currentTime = 0;
+    yesBosAudio.play().catch(() => {
+      showToast('Letakkan yes-bos.mp3 satu folder dengan HTML', 'error');
+    });
+    // Tampilkan spectrum selama audio main
+    spectrum.classList.add('active');
+    yesBosAudio.onended = () => {
+      spectrum.classList.remove('active');
+    };
+    // fallback kalau onended ga ke-trigger
+    setTimeout(() => spectrum.classList.remove('active'), 4000);
   }
 
   // ── Bulb UI ──
@@ -358,18 +286,15 @@
     try {
       await fetch(url, { method: 'GET', mode: 'no-cors' });
       updateUI(on);
-      const msg = on ? 'Baik bos, lampu dinyalakan! 💡' : 'Siap bos, lampu dimatikan! 🌙';
-      addBubble(msg, 'flora');
-      floraSpeak(on ? 'Certainly boss, light activated' : 'Understood boss, light deactivated');
+      addBubble(on ? 'Lampu dinyalakan 💡' : 'Lampu dimatikan 🌙', 'flora');
     } catch(e) {
-      addBubble('Aduh, gagal konek ke ESP32. Cek IP ya bos 😓', 'flora');
-      floraSpeak('I am unable to reach the device, boss. Please verify the IP address');
+      addBubble('Gagal konek ke ESP32. Cek IP ya bos 😓', 'flora');
     }
   }
 
   function toggleLamp() { setLamp(!lampOn); }
 
-  // ── Voice ──
+  // ── Voice Recognition ──
   function setupRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) return null;
@@ -392,10 +317,7 @@
 
     r.onend = () => {
       if (alwaysListening) {
-        // restart loop
-        setTimeout(() => {
-          try { r.start(); } catch(err) {}
-        }, 300);
+        setTimeout(() => { try { r.start(); } catch(err) {} }, 300);
         if (waitingForCommand) {
           voiceBtn.classList.add('waiting');
           voiceBtn.classList.remove('listening');
@@ -424,38 +346,33 @@
   }
 
   function handleSpeech(t) {
-    // Mode: waiting for command setelah "hi flora"
+    // helper cek perintah ON / OFF
+    function isOn(t)  { return t === 'on' || t === 'nyalakan lampu'; }
+    function isOff(t) { return t === 'off' || t === 'matikan lampu'; }
+
+    // Setelah "hi flora" — tunggu perintah
     if (waitingForCommand) {
       waitingForCommand = false;
       voiceBtn.classList.remove('waiting');
-      if (t.includes('nyala') || t.includes('on') || t.includes('hidup')) {
-        setLamp(true);
-      } else if (t.includes('mati') || t.includes('off') || t.includes('padam')) {
-        setLamp(false);
-      } else {
-        addBubble('Mau apa bos? Bilang "on" atau "off" 😊', 'flora');
-        floraSpeak('Pardon, boss? Please say on or off');
-      }
+      if (isOn(t))  setLamp(true);
+      else if (isOff(t)) setLamp(false);
+      // kalau bukan perintah valid, diam
       return;
     }
 
-    // Panggil Flora
-    if (t.includes('flora') || t.includes('hei flora') || t.includes('hi flora') || t.includes('hey flora')) {
+    // Panggil "hi", "halo", "flora", dll
+    if (t === 'hi' || t === 'hei' || t === 'hey' || t === 'halo' || t.includes('flora')) {
       waitingForCommand = true;
       addBubble('Yes bos? 👋', 'flora');
-      floraSpeak('Yes boss, at your service');
-      voiceHint.textContent = 'Flora siap, sekarang bilang "on" atau "off"';
+      playYesBos();
+      voiceHint.textContent = 'Sekarang bilang "on" / "off" / "nyalakan lampu" / "matikan lampu"';
       return;
     }
 
     // Langsung perintah tanpa panggil Flora
-    if (t.includes('nyala') || t.includes('on') || t.includes('hidup') || t.includes('hidupkan')) {
-      setLamp(true);
-    } else if (t.includes('mati') || t.includes('off') || t.includes('padam') || t.includes('matikan')) {
-      setLamp(false);
-    } else {
-      // Abaikan noise, tidak perlu respon
-    }
+    if (isOn(t))       setLamp(true);
+    else if (isOff(t)) setLamp(false);
+    // noise lain: diam
   }
 
   function toggleAlwaysOn() {
@@ -464,23 +381,20 @@
       showToast('Browser tidak support Speech Recognition', 'error');
       return;
     }
-
     if (alwaysListening) {
       alwaysListening = false;
       waitingForCommand = false;
       recognition.stop();
       voiceLabel.textContent = 'Aktifkan Flora';
       voiceHint.textContent = 'Tekan untuk mulai mendengarkan';
-      addBubble('Flora standby. Sampai jumpa bos! 👋', 'flora');
       headerStatus.textContent = 'Standby';
       headerStatus.className = 'header-status';
     } else {
       alwaysListening = true;
       voiceLabel.textContent = 'Flora Aktif';
-      voiceHint.textContent = '"hi flora" → tunggu respon → kasih perintah';
+      voiceHint.textContent = '"hi flora" lalu "on" / "off"';
       headerStatus.textContent = 'Mendengarkan...';
-      addBubble('Flora siap! Panggil saya atau langsung bilang on/off bos 🌿', 'flora');
-      floraSpeak('Flora online. Awaiting your command, boss');
+      addBubble('Flora aktif! Panggil saya atau langsung bilang on/off 🌿', 'flora');
       try { recognition.start(); } catch(e) {}
     }
   }
