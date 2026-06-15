@@ -245,33 +245,36 @@
   function playYesBos() {
     isAudioPlaying = true;
 
-    // Stop mic dulu biar ga nangkep suara mp3
-    try { if (recognition) recognition.stop(); } catch(e) {}
+    // Stop mic dulu biar ga nangkep suara mp3 (abort lebih cepat)
+    try { if (recognition) recognition.abort(); } catch(e) {}
 
-    yesBosAudio.currentTime = 0;
-    yesBosAudio.play().catch(() => {
-      showToast('Letakkan yes-bos.mp3 satu folder dengan HTML', 'error');
-      isAudioPlaying = false;
-      restartRecognition();
-    });
+    // Beri sedikit jeda supaya mic benar-benar berhenti sebelum mainkan audio
+    setTimeout(() => {
+      yesBosAudio.currentTime = 0;
+      yesBosAudio.play().catch(() => {
+        showToast('Letakkan yes-bos.mp3 satu folder dengan HTML', 'error');
+        isAudioPlaying = false;
+        restartRecognition();
+      });
+    }, 500);
 
     spectrum.classList.add('active');
 
     yesBosAudio.onended = () => {
       spectrum.classList.remove('active');
       isAudioPlaying = false;
-      // Tunggu 1.2 detik setelah audio beneran selesai baru restart mic
-      setTimeout(() => restartRecognition(), 1200);
+      // Tunggu ~4 detik setelah audio beneran selesai baru restart mic
+      setTimeout(() => restartRecognition(), 4000);
     };
 
-    // Fallback kalau onended ga ke-trigger (max 8 detik)
+    // Fallback kalau onended ga ke-trigger (max 12 detik)
     setTimeout(() => {
       if (isAudioPlaying) {
         spectrum.classList.remove('active');
         isAudioPlaying = false;
-        setTimeout(() => restartRecognition(), 1200);
+        setTimeout(() => restartRecognition(), 4000);
       }
-    }, 8000);
+    }, 12000);
   }
 
   function restartRecognition() {
@@ -362,7 +365,7 @@
       }
 
       // Restart — tapi tunggu kalau audio lagi main
-      const delay = isAudioPlaying ? 1500 : 300;
+      const delay = isAudioPlaying ? 4000 : 800;
       setTimeout(() => {
         if (alwaysListening) {
           try { r.start(); } catch(err) {}
