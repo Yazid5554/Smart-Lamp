@@ -162,7 +162,7 @@
   </div>
   <div class="ip-row">
     <input type="text" id="esp-ip" value="192.168.1.100" placeholder="IP ESP32"/>
-    <button type="button" id="save-ip-btn">OK</button>
+    <button onclick="saveIP()">OK</button>
   </div>
 </div>
 
@@ -229,21 +229,12 @@
 
   // ── IP ──
   function getIP() { return espIpInput.value.trim() || '192.168.1.100'; }
-  function validIP(ip) {
-    return /^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.|$)){4}$/.test(ip);
-  }
   function saveIP() {
-    const ip = getIP();
-    if (!validIP(ip)) {
-      showToast('IP tidak valid. Format: 192.168.1.100', 'error');
-      return;
-    }
-    localStorage.setItem('esp_ip', ip);
-    showToast('IP disimpan: ' + ip, 'success');
+    localStorage.setItem('esp_ip', getIP());
+    showToast('IP disimpan: ' + getIP(), 'success');
   }
   const savedIP = localStorage.getItem('esp_ip');
   if (savedIP) espIpInput.value = savedIP;
-  document.getElementById('save-ip-btn').addEventListener('click', saveIP);
 
   // ── Chat bubbles (disabled) ──
   function addBubble(text, type) { /* bubble dihilangkan */ }
@@ -272,18 +263,18 @@
     yesBosAudio.onended = () => {
       spectrum.classList.remove('active');
       isAudioPlaying = false;
-      // Tunggu ~4 detik setelah audio beneran selesai baru restart mic
-      setTimeout(() => restartRecognition(), 4000);
+      // Tunggu sedikit setelah audio selesai sebelum restart mic
+      setTimeout(() => restartRecognition(), 1800);
     };
 
-    // Fallback kalau onended ga ke-trigger (max 12 detik)
+    // Fallback kalau onended ga ke-trigger (max 8 detik)
     setTimeout(() => {
       if (isAudioPlaying) {
         spectrum.classList.remove('active');
         isAudioPlaying = false;
-        setTimeout(() => restartRecognition(), 4000);
+        setTimeout(() => restartRecognition(), 1800);
       }
-    }, 12000);
+    }, 8000);
   }
 
   function restartRecognition() {
@@ -337,7 +328,7 @@
     if (!SR) return null;
     const r = new SR();
     r.lang = 'id-ID';
-    r.continuous = false;
+    r.continuous = true;
     r.interimResults = false;
 
     r.onstart = () => {
@@ -374,7 +365,7 @@
       }
 
       // Restart — tapi tunggu kalau audio lagi main
-      const delay = isAudioPlaying ? 4000 : 800;
+      const delay = isAudioPlaying ? 1800 : 300;
       setTimeout(() => {
         if (alwaysListening) {
           try { r.start(); } catch(err) {}
@@ -393,15 +384,12 @@
     return r;
   }
 
-  function isOn(text) {
-      return text === 'on' || text === 'one' || text === 'nyalakan lampu' ||
-        text === 'nyalain lampu' || text === 'nyala' || text === 'nyalakan' ||
-        text === 'nyalain' || text.includes('nyala');
+  function handleSpeech(t) {
+    function isOn(text) {
+      return /\b(?:on|one|won|nyala(?:kan|in)?|hidup|nyalakan lampu|nyala lampu|nyalain lampu)\b/.test(text);
     }
     function isOff(text) {
-      return text === 'off' || text === 'of' || text === 'matikan lampu' ||
-        text === 'mati lampu' || text === 'mati' || text === 'matikan' ||
-        text === 'matiin' || text.includes('mati');
+      return /\b(?:off|of|mati(?:kan|in)?|matain|mati lampu|matikan lampu|matikan)\b/.test(text);
     }
     function isWake(text) {
       return text === 'hi' || text === 'hai' || text === 'hei' || text === 'hey' || text === 'halo' || text === 'hallo' || text === 'hy' || text.includes('flora') || text.includes('hi ') || text.startsWith('hi');
@@ -436,7 +424,7 @@
     // Langsung perintah tanpa wake word
     if (isOn(t))       setLamp(true);
     else if (isOff(t)) setLamp(false);
-  
+  }
 
   function toggleAlwaysOn() {
     if (!recognition) recognition = setupRecognition();
