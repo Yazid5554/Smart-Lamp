@@ -385,21 +385,32 @@
   }
 
   function handleSpeech(t) {
-    function isOn(t)  { return t === 'on' || t === 'nyalakan lampu'; }
-    function isOff(t) { return t === 'off' || t === 'matikan lampu'; }
-    function isWake(t){ return t === 'hi' || t === 'hai' || t === 'hei' || t === 'hey' || t === 'halo' || t === 'hallo' || t === 'hy' || t.includes('flora') || t.includes('hi ') || t.startsWith('hi'); }
+    function isOn(text) {
+      return /\b(on|one|nyala|nyalakan|hidup|nyalain|nyala lampu|nyalakan lampu)\b/.test(text);
+    }
+    function isOff(text) {
+      return /\b(off|of|mati|matikan|matiin|matikan lampu|matikan lampu|matikan|matikan|mati lampu|matikan lampu)\b/.test(text);
+    }
+    function isWake(text) {
+      return text === 'hi' || text === 'hai' || text === 'hei' || text === 'hey' || text === 'halo' || text === 'hallo' || text === 'hy' || text.includes('flora') || text.includes('hi ') || text.startsWith('hi');
+    }
 
     // Mode tunggu perintah setelah wake word
     if (waitingForCommand) {
-      waitingForCommand = false;
-      if (isOn(t))        setLamp(true);
-      else if (isOff(t))  setLamp(false);
-      else if (isWake(t)) {
+      if (isOn(t)) {
+        waitingForCommand = false;
+        setLamp(true);
+      } else if (isOff(t)) {
+        waitingForCommand = false;
+        setLamp(false);
+      } else if (isWake(t)) {
         // dipanggil lagi — jawab lagi
         waitingForCommand = true;
         playYesBos();
+      } else {
+        // belum jelas, tetap tunggu perintah berikutnya
+        waitingForCommand = true;
       }
-      // kalau bukan keduanya, reset dan dengerin ulang
       return;
     }
 
