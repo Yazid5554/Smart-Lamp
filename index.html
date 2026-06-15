@@ -384,12 +384,15 @@
     return r;
   }
 
-  function handleSpeech(t) {
-    function isOn(text) {
-      return /\b(on|one|nyala|nyalakan|hidup|nyalain|nyala lampu|nyalakan lampu)\b/.test(text);
+  function isOn(text) {
+      return text === 'on' || text === 'one' || text === 'nyalakan lampu' ||
+        text === 'nyalain lampu' || text === 'nyala' || text === 'nyalakan' ||
+        text === 'nyalain' || text.includes('nyala');
     }
     function isOff(text) {
-      return /\b(off|of|mati|matikan|matiin|matikan lampu|matikan lampu|matikan|matikan|mati lampu|matikan lampu)\b/.test(text);
+      return text === 'off' || text === 'of' || text === 'matikan lampu' ||
+        text === 'mati lampu' || text === 'mati' || text === 'matikan' ||
+        text === 'matiin' || text.includes('mati');
     }
     function isWake(text) {
       return text === 'hi' || text === 'hai' || text === 'hei' || text === 'hey' || text === 'halo' || text === 'hallo' || text === 'hy' || text.includes('flora') || text.includes('hi ') || text.startsWith('hi');
@@ -424,7 +427,7 @@
     // Langsung perintah tanpa wake word
     if (isOn(t))       setLamp(true);
     else if (isOff(t)) setLamp(false);
-  }
+  
 
   function toggleAlwaysOn() {
     if (!recognition) recognition = setupRecognition();
