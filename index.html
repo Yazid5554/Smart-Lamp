@@ -241,30 +241,34 @@
 
   // ── Play "yes bos" mp3 ──
   const spectrum = document.getElementById('spectrum');
+  let suppressRecognitionRestart = false;
 
   function playYesBos() {
     isAudioPlaying = true;
+    suppressRecognitionRestart = true;
 
     // Stop mic dulu biar ga nangkep suara mp3 (abort lebih cepat)
     try { if (recognition) recognition.abort(); } catch(e) {}
 
-    // Beri sedikit jeda supaya mic benar-benar berhenti sebelum mainkan audio
+    // Beri jeda lebih panjang supaya mic benar-benar berhenti sebelum mainkan audio
     setTimeout(() => {
       yesBosAudio.currentTime = 0;
       yesBosAudio.play().catch(() => {
+        suppressRecognitionRestart = false;
         showToast('Letakkan yes-bos.mp3 satu folder dengan HTML', 'error');
         isAudioPlaying = false;
         restartRecognition();
       });
-    }, 500);
+    }, 1200);
 
     spectrum.classList.add('active');
 
     yesBosAudio.onended = () => {
       spectrum.classList.remove('active');
       isAudioPlaying = false;
+      suppressRecognitionRestart = false;
       // Tunggu sedikit setelah audio selesai sebelum restart mic
-      setTimeout(() => restartRecognition(), 1800);
+      setTimeout(() => restartRecognition(), 2200);
     };
 
     // Fallback kalau onended ga ke-trigger (max 8 detik)
@@ -272,9 +276,10 @@
       if (isAudioPlaying) {
         spectrum.classList.remove('active');
         isAudioPlaying = false;
-        setTimeout(() => restartRecognition(), 1800);
+        suppressRecognitionRestart = false;
+        setTimeout(() => restartRecognition(), 2200);
       }
-    }, 8000);
+    }, 9000);
   }
 
   function restartRecognition() {
@@ -363,6 +368,8 @@
         voiceBtn.classList.remove('listening', 'waiting');
         floraDot.className = 'dot active';
       }
+
+      if (suppressRecognitionRestart) return;
 
       // Restart — tapi tunggu kalau audio lagi main
       const delay = isAudioPlaying ? 1800 : 300;
