@@ -260,18 +260,18 @@
     yesBosAudio.onended = () => {
       spectrum.classList.remove('active');
       isAudioPlaying = false;
-      // Restart mic setelah audio beneran selesai
-      setTimeout(() => restartRecognition(), 400);
+      // Tunggu 1.2 detik setelah audio beneran selesai baru restart mic
+      setTimeout(() => restartRecognition(), 1200);
     };
 
-    // Fallback kalau onended ga ke-trigger (max 5 detik)
+    // Fallback kalau onended ga ke-trigger (max 8 detik)
     setTimeout(() => {
       if (isAudioPlaying) {
         spectrum.classList.remove('active');
         isAudioPlaying = false;
-        restartRecognition();
+        setTimeout(() => restartRecognition(), 1200);
       }
-    }, 5000);
+    }, 8000);
   }
 
   function restartRecognition() {
