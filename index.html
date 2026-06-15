@@ -241,45 +241,40 @@
 
   // ── Play "yes bos" mp3 ──
   const spectrum = document.getElementById('spectrum');
-  let suppressRecognitionRestart = false;
 
   function playYesBos() {
     isAudioPlaying = true;
-    suppressRecognitionRestart = true;
 
     // Stop mic dulu biar ga nangkep suara mp3 (abort lebih cepat)
     try { if (recognition) recognition.abort(); } catch(e) {}
 
-    // Beri jeda lebih panjang supaya mic benar-benar berhenti sebelum mainkan audio
+    // Beri sedikit jeda supaya mic benar-benar berhenti sebelum mainkan audio
     setTimeout(() => {
       yesBosAudio.currentTime = 0;
       yesBosAudio.play().catch(() => {
-        suppressRecognitionRestart = false;
         showToast('Letakkan yes-bos.mp3 satu folder dengan HTML', 'error');
         isAudioPlaying = false;
         restartRecognition();
       });
-    }, 1200);
+    }, 500);
 
     spectrum.classList.add('active');
 
     yesBosAudio.onended = () => {
       spectrum.classList.remove('active');
       isAudioPlaying = false;
-      suppressRecognitionRestart = false;
-      // Tunggu sedikit setelah audio selesai sebelum restart mic
-      setTimeout(() => restartRecognition(), 2200);
+      // Tunggu ~4 detik setelah audio beneran selesai baru restart mic
+      setTimeout(() => restartRecognition(), 4000);
     };
 
-    // Fallback kalau onended ga ke-trigger (max 8 detik)
+    // Fallback kalau onended ga ke-trigger (max 12 detik)
     setTimeout(() => {
       if (isAudioPlaying) {
         spectrum.classList.remove('active');
         isAudioPlaying = false;
-        suppressRecognitionRestart = false;
-        setTimeout(() => restartRecognition(), 2200);
+        setTimeout(() => restartRecognition(), 4000);
       }
-    }, 9000);
+    }, 12000);
   }
 
   function restartRecognition() {
@@ -333,7 +328,7 @@
     if (!SR) return null;
     const r = new SR();
     r.lang = 'id-ID';
-    r.continuous = true;
+    r.continuous = false;
     r.interimResults = false;
 
     r.onstart = () => {
@@ -369,10 +364,8 @@
         floraDot.className = 'dot active';
       }
 
-      if (suppressRecognitionRestart) return;
-
       // Restart — tapi tunggu kalau audio lagi main
-      const delay = isAudioPlaying ? 1800 : 300;
+      const delay = isAudioPlaying ? 4000 : 800;
       setTimeout(() => {
         if (alwaysListening) {
           try { r.start(); } catch(err) {}
@@ -393,10 +386,10 @@
 
   function handleSpeech(t) {
     function isOn(text) {
-      return /\b(?:on|one|won|nyala(?:kan|in)?|hidup|nyalakan lampu|nyala lampu|nyalain lampu)\b/.test(text);
+      return /\b(on|one|nyala|nyalakan|hidup|nyalain|nyala lampu|nyalakan lampu)\b/.test(text);
     }
     function isOff(text) {
-      return /\b(?:off|of|mati(?:kan|in)?|matain|mati lampu|matikan lampu|matikan)\b/.test(text);
+      return /\b(off|of|mati|matikan|matiin|matikan lampu|matikan lampu|matikan|matikan|mati lampu|matikan lampu)\b/.test(text);
     }
     function isWake(text) {
       return text === 'hi' || text === 'hai' || text === 'hei' || text === 'hey' || text === 'halo' || text === 'hallo' || text === 'hy' || text.includes('flora') || text.includes('hi ') || text.startsWith('hi');
