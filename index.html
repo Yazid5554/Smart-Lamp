@@ -243,17 +243,22 @@
   const spectrum = document.getElementById('spectrum');
 
   function playYesBos() {
+    isAudioPlaying = true;
     yesBosAudio.currentTime = 0;
     yesBosAudio.play().catch(() => {
       showToast('Letakkan yes-bos.mp3 satu folder dengan HTML', 'error');
+      isAudioPlaying = false;
     });
-    // Tampilkan spectrum selama audio main
     spectrum.classList.add('active');
     yesBosAudio.onended = () => {
       spectrum.classList.remove('active');
+      isAudioPlaying = false;
     };
-    // fallback kalau onended ga ke-trigger
-    setTimeout(() => spectrum.classList.remove('active'), 4000);
+    // fallback
+    setTimeout(() => {
+      spectrum.classList.remove('active');
+      isAudioPlaying = false;
+    }, 4000);
   }
 
   // ── Bulb UI ──
@@ -295,6 +300,8 @@
   function toggleLamp() { setLamp(!lampOn); }
 
   // ── Voice Recognition ──
+  let isAudioPlaying = false; // flag biar restart recognition nunggu audio selesai
+
   function setupRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) return null;
@@ -311,68 +318,80 @@
 
     r.onresult = (e) => {
       const t = e.results[0][0].transcript.toLowerCase().trim();
-      addBubble(t, 'user');
       handleSpeech(t);
     };
 
     r.onend = () => {
-      if (alwaysListening) {
-        setTimeout(() => { try { r.start(); } catch(err) {} }, 300);
-        if (waitingForCommand) {
-          voiceBtn.classList.add('waiting');
-          voiceBtn.classList.remove('listening');
-          floraDot.className = 'dot thinking';
-        } else {
-          voiceBtn.classList.add('always-on');
-          voiceBtn.classList.remove('listening', 'waiting');
-          floraDot.className = 'dot active';
-        }
-      } else {
+      if (!alwaysListening) {
         voiceBtn.classList.remove('listening', 'always-on', 'waiting');
         floraDot.className = 'dot';
         voiceLabel.textContent = 'Aktifkan Flora';
         voiceHint.textContent = 'Tekan untuk mulai mendengarkan';
         headerStatus.textContent = 'Standby';
         headerStatus.className = 'header-status';
+        return;
       }
+
+      // Update UI
+      if (waitingForCommand) {
+        voiceBtn.classList.add('waiting');
+        voiceBtn.classList.remove('listening');
+        floraDot.className = 'dot thinking';
+      } else {
+        voiceBtn.classList.add('always-on');
+        voiceBtn.classList.remove('listening', 'waiting');
+        floraDot.className = 'dot active';
+      }
+
+      // Restart — tapi tunggu kalau audio lagi main
+      const delay = isAudioPlaying ? 1500 : 300;
+      setTimeout(() => {
+        if (alwaysListening) {
+          try { r.start(); } catch(err) {}
+        }
+      }, delay);
     };
 
     r.onerror = (e) => {
       if (e.error === 'no-speech' || e.error === 'aborted') return;
-      showToast('Error: ' + e.error, 'error');
+      // restart on error juga
+      if (alwaysListening) {
+        setTimeout(() => { try { r.start(); } catch(err) {} }, 500);
+      }
     };
 
     return r;
   }
 
   function handleSpeech(t) {
-    // helper cek perintah ON / OFF
     function isOn(t)  { return t === 'on' || t === 'nyalakan lampu'; }
     function isOff(t) { return t === 'off' || t === 'matikan lampu'; }
+    function isWake(t){ return t === 'hi' || t === 'hei' || t === 'hey' || t === 'halo' || t.includes('flora'); }
 
-    // Setelah "hi flora" — tunggu perintah
+    // Mode tunggu perintah setelah wake word
     if (waitingForCommand) {
       waitingForCommand = false;
-      voiceBtn.classList.remove('waiting');
-      if (isOn(t))  setLamp(true);
-      else if (isOff(t)) setLamp(false);
-      // kalau bukan perintah valid, diam
+      if (isOn(t))        setLamp(true);
+      else if (isOff(t))  setLamp(false);
+      else if (isWake(t)) {
+        // dipanggil lagi — jawab lagi
+        waitingForCommand = true;
+        playYesBos();
+      }
+      // kalau bukan keduanya, reset dan dengerin ulang
       return;
     }
 
-    // Panggil "hi", "halo", "flora", dll
-    if (t === 'hi' || t === 'hei' || t === 'hey' || t === 'halo' || t.includes('flora')) {
+    // Wake word
+    if (isWake(t)) {
       waitingForCommand = true;
-      addBubble('Yes bos? 👋', 'flora');
       playYesBos();
-      voiceHint.textContent = 'Sekarang bilang "on" / "off" / "nyalakan lampu" / "matikan lampu"';
       return;
     }
 
-    // Langsung perintah tanpa panggil Flora
+    // Langsung perintah tanpa wake word
     if (isOn(t))       setLamp(true);
     else if (isOff(t)) setLamp(false);
-    // noise lain: diam
   }
 
   function toggleAlwaysOn() {
@@ -384,17 +403,18 @@
     if (alwaysListening) {
       alwaysListening = false;
       waitingForCommand = false;
-      recognition.stop();
+      try { recognition.stop(); } catch(e) {}
       voiceLabel.textContent = 'Aktifkan Flora';
       voiceHint.textContent = 'Tekan untuk mulai mendengarkan';
       headerStatus.textContent = 'Standby';
       headerStatus.className = 'header-status';
+      floraDot.className = 'dot';
+      voiceBtn.classList.remove('listening', 'always-on', 'waiting');
     } else {
       alwaysListening = true;
       voiceLabel.textContent = 'Flora Aktif';
-      voiceHint.textContent = '"hi flora" lalu "on" / "off"';
+      voiceHint.textContent = '"halo / hi / flora" → lalu "on" / "off"';
       headerStatus.textContent = 'Mendengarkan...';
-      addBubble('Flora aktif! Panggil saya atau langsung bilang on/off 🌿', 'flora');
       try { recognition.start(); } catch(e) {}
     }
   }
