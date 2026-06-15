@@ -65,16 +65,16 @@
     margin: 8px 0; align-self: center;
   }
   .bulb-wrapper {
-    position: relative; width: 90px; height: 90px;
+    position: relative; width: 160px; height: 160px;
     cursor: pointer; user-select: none;
   }
   .bulb-svg { width: 100%; height: 100%; transition: filter 0.4s; }
   .bulb-wrapper.on .bulb-svg {
-    filter: drop-shadow(0 0 18px rgba(255,220,80,0.9)) drop-shadow(0 0 36px rgba(255,200,40,0.5));
+    filter: drop-shadow(0 0 28px rgba(255,220,80,0.95)) drop-shadow(0 0 56px rgba(255,200,40,0.6));
   }
   .bulb-glow {
-    position: absolute; inset: -24px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,210,60,0.12) 0%, transparent 70%);
+    position: absolute; inset: -40px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,210,60,0.14) 0%, transparent 70%);
     opacity: 0; transition: opacity 0.4s; pointer-events: none;
   }
   .bulb-wrapper.on .bulb-glow { opacity: 1; }
@@ -116,17 +116,17 @@
   /* Spectrum */
   .spectrum {
     display: flex; align-items: flex-end; justify-content: center;
-    gap: 3px; height: 32px; width: 80px;
-    margin-top: 10px;
+    gap: 6px; height: 56px; width: 220px;
+    margin-top: 18px;
     opacity: 0; transition: opacity 0.3s;
   }
   .spectrum.active { opacity: 1; }
   .spectrum .bar {
-    width: 4px; border-radius: 2px;
+    width: 8px; border-radius: 4px;
     background: linear-gradient(to top, #7c5aff, #a78bfa);
     animation: none;
-    height: 3px;
-    transition: height 0.1s;
+    height: 6px;
+    transition: height 0.08s;
   }
   .spectrum.active .bar { animation: specBar var(--dur) ease-in-out infinite alternate; }
   @keyframes specBar {
