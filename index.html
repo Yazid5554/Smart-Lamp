@@ -244,21 +244,39 @@
 
   function playYesBos() {
     isAudioPlaying = true;
+
+    // Stop mic dulu biar ga nangkep suara mp3
+    try { if (recognition) recognition.stop(); } catch(e) {}
+
     yesBosAudio.currentTime = 0;
     yesBosAudio.play().catch(() => {
       showToast('Letakkan yes-bos.mp3 satu folder dengan HTML', 'error');
       isAudioPlaying = false;
+      restartRecognition();
     });
+
     spectrum.classList.add('active');
+
     yesBosAudio.onended = () => {
       spectrum.classList.remove('active');
       isAudioPlaying = false;
+      // Restart mic setelah audio beneran selesai
+      setTimeout(() => restartRecognition(), 400);
     };
-    // fallback
+
+    // Fallback kalau onended ga ke-trigger (max 5 detik)
     setTimeout(() => {
-      spectrum.classList.remove('active');
-      isAudioPlaying = false;
-    }, 4000);
+      if (isAudioPlaying) {
+        spectrum.classList.remove('active');
+        isAudioPlaying = false;
+        restartRecognition();
+      }
+    }, 5000);
+  }
+
+  function restartRecognition() {
+    if (!alwaysListening) return;
+    try { recognition.start(); } catch(e) {}
   }
 
   // ── Bulb UI ──
@@ -366,7 +384,7 @@
   function handleSpeech(t) {
     function isOn(t)  { return t === 'on' || t === 'nyalakan lampu'; }
     function isOff(t) { return t === 'off' || t === 'matikan lampu'; }
-    function isWake(t){ return t === 'hi' || t === 'hei' || t === 'hey' || t === 'halo' || t.includes('flora'); }
+    function isWake(t){ return t === 'hi' || t === 'hai' || t === 'hei' || t === 'hey' || t === 'halo' || t === 'hallo' || t === 'hy' || t.includes('flora') || t.includes('hi ') || t.startsWith('hi'); }
 
     // Mode tunggu perintah setelah wake word
     if (waitingForCommand) {
