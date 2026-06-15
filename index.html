@@ -162,7 +162,7 @@
   </div>
   <div class="ip-row">
     <input type="text" id="esp-ip" value="192.168.1.100" placeholder="IP ESP32"/>
-    <button onclick="saveIP()">OK</button>
+    <button type="button" id="save-ip-btn">OK</button>
   </div>
 </div>
 
@@ -229,12 +229,21 @@
 
   // ── IP ──
   function getIP() { return espIpInput.value.trim() || '192.168.1.100'; }
+  function validIP(ip) {
+    return /^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.|$)){4}$/.test(ip);
+  }
   function saveIP() {
-    localStorage.setItem('esp_ip', getIP());
-    showToast('IP disimpan: ' + getIP(), 'success');
+    const ip = getIP();
+    if (!validIP(ip)) {
+      showToast('IP tidak valid. Format: 192.168.1.100', 'error');
+      return;
+    }
+    localStorage.setItem('esp_ip', ip);
+    showToast('IP disimpan: ' + ip, 'success');
   }
   const savedIP = localStorage.getItem('esp_ip');
   if (savedIP) espIpInput.value = savedIP;
+  document.getElementById('save-ip-btn').addEventListener('click', saveIP);
 
   // ── Chat bubbles (disabled) ──
   function addBubble(text, type) { /* bubble dihilangkan */ }
